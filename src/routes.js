@@ -42,6 +42,7 @@ import RTL from "layouts/rtl";
 import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
+import BackgroundRemoval from "layouts/background-removal";
 
 // Argon Dashboard 2 MUI components
 import ArgonBox from "components/ArgonBox";
@@ -80,6 +81,14 @@ const routes = [
     route: "/virtual-reality",
     icon: <ArgonBox component="i" color="info" fontSize="14px" className="ni ni-app" />,
     component: <VirtualReality />,
+  },
+  {
+    type: "route",
+    name: "Background Removal",
+    key: "background-removal",
+    route: "/background-removal",
+    icon: <ArgonBox component="i" color="info" fontSize="14px" className="ni ni-app" />,
+    component: <BackgroundRemoval />,
   },
   {
     type: "route",
