@@ -1,6 +1,6 @@
 # [EazyPic]
 
-![version]To build files, make sure use tauri-apps/@next version, still in beta so watch out for breaking changes ! :
+![version] This is just a Fun project MVP using FE from Creative Tim and wrapped around tauri-apps, To build files, make sure use tauri-apps/@next version, still in beta so watch out for breaking changes ! :
 
 **Fully Coded Elements**
 npm install @tauri-apps/cli@next @tauri-apps/api@next
@@ -16,8 +16,9 @@ npm install --save-dev internal-ip
 "developmentTeam": "demo"
 }
 
++ build on ios: 
 **Fully Coded Elements**
-build on ios: cargo tauri ios init
+cargo tauri ios init
 
 [Resources]make sure to have ios simulator ready
 
