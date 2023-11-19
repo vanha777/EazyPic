@@ -1,3 +1,29 @@
+# [EazyPic]
+
+![version]To build files, make sure use tauri-apps/@next version, still in beta so watch out for breaking changes ! :
+
+**Fully Coded Elements**
+npm install @tauri-apps/cli@next @tauri-apps/api@next
+**Fully Coded Elements**
+cargo add tauri@2.0.0-alpha.0
+cargo add tauri-build@2.0.0-alpha.0 --build
+cargo install tauri-cli --version "^2.0.0-alpha"
+**Fully Coded Elements**
+npm install --save-dev internal-ip
+
+[Resources]Depaned on what version you wanna build, they are specific in your tauri.conf.json un bundle, example :
+"iOS": {
+"developmentTeam": "demo"
+}
+
+**Fully Coded Elements**
+build on ios: cargo tauri ios init
+
+[Resources]make sure to have ios simulator ready
+
+**Fully Coded Elements**
+cargo tauri ios dev
+
 # [Argon Dashboard 2 MUI](http://demos.creative-tim.com/argon-dashboard-material-ui/?ref=readme-admui) [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter)](https://twitter.com/intent/tweet?url=https://www.creative-tim.com/product/argon-dashboard-material-ui&text=Check%20Argon%20Dashboard%20React%20made%20by%20@CreativeTim%20#webdesign%20#dashboard%20#argondesign%20#react%20https://www.creative-tim.com/product/argon-dashboard-material-ui)
 
 ![version](https://img.shields.io/badge/version-3.0.1-blue.svg) [![GitHub issues open](https://img.shields.io/github/issues/creativetimofficial/argon-dashboard-material-ui.svg)](https://github.com/creativetimofficial/argon-dashboard-material-ui/issues?q=is%3Aopen+is%3Aissue) [![GitHub issues closed](https://img.shields.io/github/issues-closed-raw/creativetimofficial/argon-dashboard-material-ui.svg)](https://github.com/creativetimofficial/argon-dashboard-material-ui/issues?q=is%3Aissue+is%3Aclosed)
