@@ -14,6 +14,7 @@ Coded by www.creative-tim.com
 */
 
 // @mui material components
+import React, { useState } from "react";
 import Card from "@mui/material/Card";
 
 // Argon Dashboard 2 MUI components
@@ -31,14 +32,76 @@ import authorsTableData from "layouts/tables/data/authorsTableData";
 import projectsTableData from "layouts/tables/data/projectsTableData";
 import { Box, Button, Container, Stack, Typography } from "@mui/material";
 import exampleImage from "./example.png";
+import backGround from "./background.png";
 import Tooltip from "@mui/material/Tooltip";
 import Icon from "@mui/material/Icon";
 import ArgonButton from "components/ArgonButton";
 import Grid from "@mui/material/Grid";
 
+import { primitives } from "@tauri-apps/api";
+
 function Tables() {
   const { columns, rows } = authorsTableData;
   const { columns: prCols, rows: prRows } = projectsTableData;
+
+  function handleLayersClick() {
+    // Assuming primitives.invoke is a function that returns a promise
+    primitives
+      .invoke("greet", { name: "Van Jiro" })
+      .then((response) => {
+        console.log("Invoke fn from Rust BE:", response);
+        // Additional logic to handle the response
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        // Additional logic to handle the error
+      });
+  }
+
+  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [scale, setScale] = useState(1);
+  const [startDragPosition, setStartDragPosition] = useState({ x: 0, y: 0 });
+
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setStartDragPosition({ x: e.clientX - position.x, y: e.clientY - position.y });
+  };
+
+  const handleMouseMove = (e) => {
+    if (isDragging) {
+      const newX = e.clientX - startDragPosition.x;
+      const newY = e.clientY - startDragPosition.y;
+      setPosition({ x: newX, y: newY });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleWheel = (e) => {
+    setScale((prevScale) => prevScale + e.deltaY * -0.01);
+  };
+
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    setIsDragging(true);
+    setStartDragPosition({ x: touch.clientX - position.x, y: touch.clientY - position.y });
+  };
+
+  const handleTouchMove = (e) => {
+    if (isDragging) {
+      const touch = e.touches[0];
+      const newX = touch.clientX - startDragPosition.x;
+      const newY = touch.clientY - startDragPosition.y;
+      setPosition({ x: newX, y: newY });
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
 
   return (
     <DashboardLayout>
@@ -46,133 +109,52 @@ function Tables() {
 
       <ArgonBox py={3}>
         {/* Container for the image */}
-        <ArgonBox mb={3}>
-          <Card>
+        <ArgonBox
+          mb={3}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          style={{ width: "100%" }}
+        >
+          <Card
+            style={{
+              width: "500px",
+              height: "500px",
+              backgroundImage: `url(${backGround})`, // Set the background image
+              backgroundSize: "cover", // Ensure the background covers the Card
+              position: "relative", // Needed for proper positioning of the ArgonBox
+              overflow: "hidden", // To clip the overflow
+            }}
+          >
             <ArgonBox
               display="flex"
               alignItems="center"
               component="img"
               src={exampleImage}
               alt="Editable Image"
-              //sx={{ width: "auto", height: "auto", marginBottom: "16px" }}
+              style={{
+                transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                cursor: isDragging ? "grabbing" : "grab",
+              }}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onWheel={handleWheel}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             />
           </Card>
         </ArgonBox>
 
         <ArgonBox mb={3}>
           <ArgonBox>
-            {/*
-              <Stack direction="row" spacing={8} justifyContent="center">
-                <ArgonBox my={{ xs: 0, md: 2 }} mx={{ xs: 2, md: 0 }}>
-                  <Tooltip title="Home" placement="right">
-                    <ArgonButton
-                      size="large"
-                      iconOnly
-                      variant="gradient"
-                      sx={({ palette: { dark }, borders: { borderRadius } }) => ({
-                        color: dark.main,
-                        borderRadius: borderRadius.lg,
-                      })}
-                    >
-                      <Icon>home</Icon>
-                    </ArgonButton>
-                  </Tooltip>
-                </ArgonBox>
-                <ArgonBox mb={{ xs: 0, md: 2 }} mr={{ xs: 2, md: 0 }}>
-                  <Tooltip title="Search" placement="right">
-                    <ArgonButton
-                      size="large"
-                      variant="gradient"
-                      iconOnly
-                      sx={({ palette: { dark }, borders: { borderRadius } }) => ({
-                        color: dark.main,
-                        borderRadius: borderRadius.lg,
-                      })}
-                    >
-                      <Icon>search</Icon>
-                    </ArgonButton>
-                  </Tooltip>
-                </ArgonBox>
-                <ArgonBox mb={{ xs: 0, md: 2 }} mr={{ xs: 2, md: 0 }}>
-                  <Tooltip title="Search" placement="right">
-                    <ArgonButton
-                      size="large"
-                      variant="gradient"
-                      iconOnly
-                      sx={({ palette: { dark }, borders: { borderRadius } }) => ({
-                        color: dark.main,
-                        borderRadius: borderRadius.lg,
-                      })}
-                    >
-                      <Icon>more_horiz</Icon>
-                    </ArgonButton>
-                  </Tooltip>
-                </ArgonBox>
-              </Stack>
-              <Stack direction="row" spacing={2} justifyContent="center" mt={2}>
-                <ArgonBox my={{ xs: 0, md: 2 }} mx={{ xs: 2, md: 0 }}>
-                  <ArgonButton
-                    size="large"
-                    variant="gradient"
-                    //iconOnly
-                    sx={({ palette: { dark }, borders: { borderRadius } }) => ({
-                      minWidth: "100px",
-                      maxWidth: "150px",
-                      color: dark.main,
-                      borderRadius: borderRadius.lg,
-                    })}
-                  >
-                    <Icon>home</Icon>
-                    &nbsp;Layers
-                  </ArgonButton>
-                </ArgonBox>
-                <ArgonBox mb={{ xs: 0, md: 2 }} mr={{ xs: 2, md: 0 }}>
-                  <Tooltip title="Search" placement="right">
-                    <ArgonButton
-                      size="large"
-                      variant="gradient"
-                      //iconOnly
-                      sx={({ palette: { dark }, borders: { borderRadius } }) => ({
-                        color: dark.main,
-                        borderRadius: borderRadius.lg,
-                        minWidth: "100px",
-                        maxWidth: "150px",
-                      })}
-                    >
-                      <Icon>search</Icon>
-                      &nbsp;Layers
-                    </ArgonButton>
-                  </Tooltip>
-                </ArgonBox>
-                <ArgonBox
-                  sx={{ maxWidth: "100%", overflow: "auto" }}
-                  mb={{ xs: 0, md: 2 }}
-                  mr={{ xs: 2, md: 0 }}
-                >
-                  <Tooltip title="Search" placement="right">
-                    <ArgonButton
-                      size="large"
-                      variant="gradient"
-                      // iconOnly
-                      sx={({ palette: { dark }, borders: { borderRadius } }) => ({
-                        color: dark.main,
-                        borderRadius: borderRadius.lg,
-                        minWidth: "100px",
-                        maxWidth: "150px",
-                      })}
-                    >
-                      <Icon>more_horiz</Icon>
-                      &nbsp;Layers
-                    </ArgonButton>
-                  </Tooltip>
-                </ArgonBox>
-              </Stack>
-              */}
             <Grid container justifyContent="center" spacing={2}>
               {/* First Row */}
               <Grid item xs={12} container spacing={2} justifyContent="space-between">
                 <Grid item xs={4}>
-                  <ArgonButton variant="gradient" fullWidth>
+                  <ArgonButton onClick={handleLayersClick} variant="gradient" fullWidth>
                     <Icon>layers_sharp</Icon>
                     &nbsp;Layers
                   </ArgonButton>
@@ -195,19 +177,19 @@ function Tables() {
               <Grid item xs={12} container spacing={2} justifyContent="space-between">
                 <Grid item xs={4}>
                   <ArgonButton variant="gradient" fullWidth>
-                  <Icon>wallpaper_sharp</Icon>
+                    <Icon>wallpaper_sharp</Icon>
                     &nbsp;Theme
                   </ArgonButton>
                 </Grid>
                 <Grid item xs={4}>
                   <ArgonButton variant="gradient" fullWidth>
-                  <Icon>co_present_sharp</Icon>
+                    <Icon>co_present_sharp</Icon>
                     &nbsp;Shadows
                   </ArgonButton>
                 </Grid>
                 <Grid item xs={4}>
                   <ArgonButton variant="gradient" fullWidth>
-                  <Icon>height_sharp</Icon>
+                    <Icon>height_sharp</Icon>
                     &nbsp;Resize
                   </ArgonButton>
                 </Grid>

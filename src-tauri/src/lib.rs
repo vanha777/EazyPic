@@ -4,10 +4,12 @@ mod mobile;
 #[cfg(mobile)]
 pub use mobile::*;
 pub type SetupHook = Box<dyn FnOnce(&mut App) -> Result<(), Box<dyn std::error::Error>> + Send>;
+
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}!", name)
 }
+
 #[derive(Default)]
 pub struct AppBuilder {
     setup: Option<SetupHook>,
