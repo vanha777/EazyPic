@@ -169,7 +169,7 @@ function DefaultNavbar({ brand, transparent, light, action }) {
           </ArgonBox>
         </ArgonBox>
       </ArgonBox>
-      {mobileView && <DefaultNavbarMobile open={mobileNavbar} close={closeMobileNavbar} />}
+     {/* {mobileView && <DefaultNavbarMobile open={mobileNavbar} close={closeMobileNavbar} />} */}
     </Container>
   );
 }

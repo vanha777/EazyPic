@@ -31,8 +31,14 @@ import Table from "examples/Tables/Table";
 import authorsTableData from "layouts/tables/data/authorsTableData";
 import projectsTableData from "layouts/tables/data/projectsTableData";
 import { Box, Button, Container, Stack, Typography } from "@mui/material";
-import exampleImage from "./example.png";
-import backGround from "./background.png";
+
+import exampleImage1 from "./example/example1.png";
+import exampleImage2 from "./example/example2.png";
+import exampleImage3 from "./example/example3.png";
+import exampleImage4 from "./example/example4.png";
+
+import DefaultBackGround from "./background.png";
+import DefaultComponent from "./defaultcomponent.png";
 import Tooltip from "@mui/material/Tooltip";
 import Icon from "@mui/material/Icon";
 import ArgonButton from "components/ArgonButton";
@@ -44,24 +50,71 @@ function Tables() {
   const { columns, rows } = authorsTableData;
   const { columns: prCols, rows: prRows } = projectsTableData;
 
+  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [scale, setScale] = useState(1);
+  const [startDragPosition, setStartDragPosition] = useState({ x: 0, y: 0 });
+
+  const [backGround, setBackGround] = useState(DefaultBackGround);
+  const [characters, setCharacters] = useState(DefaultComponent);
+  const [loading, setLoading] = useState({
+    inserts: false,
+    theme: false,
+    characters: false,
+    // ... other buttons
+  });
+
+  // An array of images
+  const exampleCharacters = [exampleImage1, exampleImage2, exampleImage3,exampleImage4];
+  //this is test only
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  function handleCharactersGenerator() {
+    setLoading({ ...loading, characters: true });
+    console.log("generating characters");
+    setTimeout(() => {
+      setLoading({ ...loading, characters: false });
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % exampleCharacters.length);
+      setCharacters(exampleCharacters[currentIndex]);
+    }, 2000);
+  }
+
+  // testing function
   function handleLayersClick() {
-    // Assuming primitives.invoke is a function that returns a promise
+    setLoading({ ...loading, inserts: true });
     primitives
       .invoke("greet", { name: "Van Jiro" })
       .then((response) => {
         console.log("Invoke fn from Rust BE:", response);
+        setTimeout(() => {
+          setLoading({ ...loading, inserts: false });
+        }, 2000);
         // Additional logic to handle the response
       })
       .catch((error) => {
+        setLoading({ ...loading, inserts: false });
         console.error("Error:", error);
         // Additional logic to handle the error
       });
   }
 
-  const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [scale, setScale] = useState(1);
-  const [startDragPosition, setStartDragPosition] = useState({ x: 0, y: 0 });
+  function handleBackgroundGenerator() {
+    console.log("generating background");
+    setLoading({ ...loading, theme: true });
+    primitives
+      .invoke("background_generate")
+      .then((response) => {
+        let image = `data:image/jpeg;base64,${response}`;
+        setBackGround(image);
+        setLoading({ ...loading, theme: false });
+        // Additional logic to handle the response
+      })
+      .catch((error) => {
+        setLoading({ ...loading, theme: false });
+        console.error("Error:", error);
+        // Additional logic to handle the error
+      });
+  }
 
   const handleMouseDown = (e) => {
     setIsDragging(true);
@@ -130,7 +183,7 @@ function Tables() {
               display="flex"
               alignItems="center"
               component="img"
-              src={exampleImage}
+              src={characters}
               alt="Editable Image"
               style={{
                 transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
@@ -154,13 +207,23 @@ function Tables() {
               {/* First Row */}
               <Grid item xs={12} container spacing={2} justifyContent="space-between">
                 <Grid item xs={4}>
-                  <ArgonButton onClick={handleLayersClick} variant="gradient" fullWidth>
+                  <ArgonButton
+                    onClick={handleCharactersGenerator}
+                    loading={loading.characters}
+                    variant="gradient"
+                    fullWidth
+                  >
                     <Icon>layers_sharp</Icon>
-                    &nbsp;Layers
+                    &nbsp;characters
                   </ArgonButton>
                 </Grid>
                 <Grid item xs={4}>
-                  <ArgonButton variant="gradient" fullWidth>
+                  <ArgonButton
+                    onClick={handleLayersClick}
+                    loading={loading.inserts}
+                    variant="gradient"
+                    fullWidth
+                  >
                     <Icon>add_circle_outline_sharp</Icon>
                     &nbsp;Inserts
                   </ArgonButton>
@@ -176,7 +239,12 @@ function Tables() {
               {/* Second Row */}
               <Grid item xs={12} container spacing={2} justifyContent="space-between">
                 <Grid item xs={4}>
-                  <ArgonButton variant="gradient" fullWidth>
+                  <ArgonButton
+                    onClick={handleBackgroundGenerator}
+                    loading={loading.theme}
+                    variant="gradient"
+                    fullWidth
+                  >
                     <Icon>wallpaper_sharp</Icon>
                     &nbsp;Theme
                   </ArgonButton>

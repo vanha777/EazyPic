@@ -20,32 +20,33 @@ import PropTypes from "prop-types";
 
 // Custom styles for ArgonButton
 import ArgonButtonRoot from "components/ArgonButton/ArgonButtonRoot";
+// #Material Mui
+import CircularProgress from '@mui/material/CircularProgress';
 
 const ArgonButton = forwardRef(
-  ({ color, variant, size, circular, iconOnly, children, ...rest }, ref) => (
+  ({ color, variant, size, circular, iconOnly, loading, children, ...rest }, ref) => (
     <ArgonButtonRoot
       {...rest}
       ref={ref}
-      color="primary"
       variant={variant === "gradient" ? "contained" : variant}
       size={size}
+      disabled={loading} // Disable button when loading
       ownerState={{ color, variant, size, circular, iconOnly }}
     >
-      {children}
+      {loading ? <CircularProgress size={24} /> : children}
     </ArgonButtonRoot>
   )
 );
 
-// Setting default values for the props of ArgonButton
 ArgonButton.defaultProps = {
   size: "medium",
   variant: "contained",
   color: "white",
   circular: false,
   iconOnly: false,
+  loading: false, // Default loading state is false
 };
 
-// Typechecking props for the ArgonButton
 ArgonButton.propTypes = {
   size: PropTypes.oneOf(["small", "medium", "large"]),
   variant: PropTypes.oneOf(["text", "contained", "outlined", "gradient"]),
@@ -62,6 +63,7 @@ ArgonButton.propTypes = {
   ]),
   circular: PropTypes.bool,
   iconOnly: PropTypes.bool,
+  loading: PropTypes.bool, // Add propType for loading
   children: PropTypes.node.isRequired,
 };
 
