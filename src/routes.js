@@ -42,7 +42,10 @@ import RTL from "layouts/rtl";
 import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
-import BackgroundRemoval from "layouts/background-removal";
+import EazyCanvas from "layouts/eazy-canvas";
+import EazyPic from "layouts/eazy-pic";
+import EazyPic2 from "layouts/eazy-pic2";
+import EazyDescription from "layouts/eazy-description";
 
 // Argon Dashboard 2 MUI components
 import ArgonBox from "components/ArgonBox";
@@ -84,11 +87,35 @@ const routes = [
   },
   {
     type: "route",
-    name: "Background Removal",
-    key: "background-removal",
-    route: "/background-removal",
+    name: "Eazy Canvas",
+    key: "eazy-canvas",
+    route: "/eazy-canvas",
     icon: <ArgonBox component="i" color="info" fontSize="14px" className="ni ni-app" />,
-    component: <BackgroundRemoval />,
+    component: <EazyCanvas />,
+  },
+  {
+    type: "route",
+    name: "Eazy Product",
+    key: "eazy-product",
+    route: "/eazy-product",
+    icon: <ArgonBox component="i" color="info" fontSize="14px" className="ni ni-app" />,
+    component: <EazyPic />,
+  },
+  {
+    type: "route",
+    name: "Eazy Pic2",
+    key: "eazy-pic2",
+    route: "/eazy-pic2",
+    icon: <ArgonBox component="i" color="info" fontSize="14px" className="ni ni-app" />,
+    component: <EazyPic2 />,
+  },
+  {
+    type: "route",
+    name: "Eazy Description",
+    key: "eazy-description",
+    route: "/eazy-description",
+    icon: <ArgonBox component="i" color="info" fontSize="14px" className="ni ni-app" />,
+    component: <EazyDescription />,
   },
   {
     type: "route",
