@@ -13,10 +13,16 @@ import ArgonBox from "components/ArgonBox"; // Ensure you have this component av
 import ArgonButton from "components/ArgonButton";
 import ArgonTypography from "components/ArgonTypography";
 
+import { useArgonController, setCharacterLink } from 'context';
+
 import { primitives } from "@tauri-apps/api";
 
 function PhotoSelector() {
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [controller, dispatch] = useArgonController();
+
+  const updateCharacterLink = (newLink) => {
+    setCharacterLink(dispatch, newLink);
+  };
 
   const VisuallyHiddenInput = styled("input")({
     clip: "rect(0 0 0 0)",
@@ -31,34 +37,42 @@ function PhotoSelector() {
   });
 
   const navigate = useNavigate();
-  // Handle the photo selection logic here
-  const handleUploadPhoto = (event) => {
-    const file = event.target.files; // Get the selected file from the input
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
     if (file) {
-      // Do something with the selected file, such as uploading or processing it
-      console.log("Selected file:", file);
+      handleUpload(file);
     }
-    /*
-    primitives
-    .invoke("greet", { name: "Van Jiro" })
-    .then((response) => {
-      console.log("Invoke fn from Rust BE:", response);
-      setTimeout(() => {
-        setLoading({ ...loading, inserts: false });
-      }, 2000);
-      // Additional logic to handle the response
-    })
-    .catch((error) => {
-      setLoading({ ...loading, inserts: false });
-      console.error("Error:", error);
-      // Additional logic to handle the error
-    });
-    */
+  };
+
+  // Handle the photo selection logic here
+  const handleUpload = (file) => {
+    if (file) {
+      const reader = new FileReader();
+      console.log("this is your files:", file);
+      reader.onload = async (e) => {
+        const arrayBuffer = e.target.result;
+        const bytes = new Uint8Array(arrayBuffer);
+        try {
+          const response = await primitives.invoke("upload_file", {
+            fileBytes: Array.from(bytes),
+            token: "123",
+          });
+          updateCharacterLink(response);
+          handleRouteToCanvas();
+          console.log("Response from upload_file:", response);
+        } catch (e) {
+          console.error("Error sending file to backend:", e);
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
   };
 
   function handleRouteToCanvas() {
     console.log("re-route to canvas");
-    navigate("/eazy-canvas"); // Replace '/canvas' with the path you want to navigate to
+    navigate("/eazy-pic2"); // Replace '/canvas' with the path you want to navigate to
   }
 
   return (
@@ -95,7 +109,7 @@ function PhotoSelector() {
         <Stack direction="column" spacing={2} alignItems="center">
           <ArgonButton
             component="label"
-            onClick={handleUploadPhoto}
+            // onClick={handleUpload}
             //loading={loading.theme}
             variant="gradient"
             fullWidth
@@ -107,7 +121,7 @@ function PhotoSelector() {
               type="file"
               accept="image/*" // Specify accepted file types (e.g., images)
               style={{ display: "none" }}
-              onChange={handleUploadPhoto}
+              onChange={handleFileChange}
             />
           </ArgonButton>
 

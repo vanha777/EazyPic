@@ -11,9 +11,13 @@ import { Grid, Paper, Button, Typography } from "@mui/material";
 import ArgonBox from "components/ArgonBox"; // Ensure you have this component available
 import ArgonButton from "components/ArgonButton";
 import ArgonTypography from "components/ArgonTypography";
+import { useArgonController, setCharacterLink } from 'context';
 
 function PhotoSelector() {
   const navigate = useNavigate();
+  const [controller, dispatch] = useArgonController();
+  const { characterLink } = controller;
+  console.log("this is global characterLink",characterLink);
   // Handle the photo selection logic here
   const handleSelectPhoto = (photo) => {
     console.log("Selected photo:", photo);
@@ -21,7 +25,7 @@ function PhotoSelector() {
 
   function handleRouteToCanvas() {
     console.log("re-route to canvas");
-    navigate('/eazy-canvas'); // Replace '/canvas' with the path you want to navigate to
+    navigate('/eazy-description'); // Replace '/canvas' with the path you want to navigate to
   }
 
   return (
@@ -44,13 +48,13 @@ function PhotoSelector() {
           style={{
             width: "500px",
             height: "500px",
-            backgroundImage: `url(${exampleImage})`, // Set the background image
+           // backgroundImage: `url(${characterLink})`, // Set the background image
             backgroundSize: "cover", // Ensure the background covers the Card
             position: "relative", // Needed for proper positioning of the ArgonBox
             overflow: "hidden", // To clip the overflow
           }}
         >
-          {/*} <ArgonBox display="flex" alignItems="center" component="img" src={exampleImage} />*/}
+          <ArgonBox display="flex" alignItems="center" component="img" src={characterLink} />
         </Card>
       </ArgonBox>
 

@@ -12,3 +12,17 @@ pub struct Url {
     pub b64_json: Option<String>,
     pub revised_prompt: Option<String>,
 }
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct MediaResponse {
+    pub item: String,
+    pub url: String,
+    pub expires: String,
+    pub created_at: String,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct MediaRequest {
+    pub data: Option<String>,
+    pub id: String,
+}

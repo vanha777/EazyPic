@@ -21,7 +21,7 @@ function PhotoSelector() {
 
   function handleRouteToCanvas() {
     console.log("re-route to canvas");
-    navigate('/background-removal'); // Replace '/canvas' with the path you want to navigate to
+    navigate('/eazy-canvas'); // Replace '/canvas' with the path you want to navigate to
   }
 
   return (
@@ -38,7 +38,7 @@ function PhotoSelector() {
           style={{
             width: "500px",
             height: "500px",
-           // backgroundImage: `url(${exampleImage})`, // Set the background image
+            //backgroundImage: `url(${characterLink})`, // Set the background image
             backgroundSize: "cover", // Ensure the background covers the Card
             position: "relative", // Needed for proper positioning of the ArgonBox
             overflow: "hidden", // To clip the overflow
@@ -47,7 +47,7 @@ function PhotoSelector() {
              <ArgonTypography variant="h4" gutterBottom>
         Created a scene
       </ArgonTypography>
-          {/*} <ArgonBox display="flex" alignItems="center" component="img" src={exampleImage} />*/}
+          {/*} <ArgonBox display="flex" alignItems="center" component="img" src={characterLink} />*/}
         </Card>
       </ArgonBox>
 
