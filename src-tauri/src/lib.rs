@@ -118,7 +118,8 @@ impl AppBuilder {
             .invoke_handler(tauri::generate_handler![
                 greet,
                 background_generate,
-                upload_file
+                upload_file,
+                get_character
             ])
             .run(tauri::generate_context!())
             .expect("error while running tauri application");
