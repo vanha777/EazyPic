@@ -26,3 +26,10 @@ pub struct MediaRequest {
     pub data: Option<String>,
     pub id: String,
 }
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct ImageJobReply {
+    pub status: Option<String>,
+    pub file_name: Option<String>,
+    pub link: Option<String>,
+}

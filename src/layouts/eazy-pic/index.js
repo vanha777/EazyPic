@@ -13,8 +13,7 @@ import ArgonBox from "components/ArgonBox"; // Ensure you have this component av
 import ArgonButton from "components/ArgonButton";
 import ArgonTypography from "components/ArgonTypography";
 
-import { useArgonController, setCharacterLink } from 'context';
-
+import { useArgonController, setCharacterLink, setCharacterFileName } from 'context';
 import { primitives } from "@tauri-apps/api";
 
 function PhotoSelector() {
@@ -23,6 +22,11 @@ function PhotoSelector() {
   const updateCharacterLink = (newLink) => {
     setCharacterLink(dispatch, newLink);
   };
+
+  const updateCharacterFileName = (newLink) => {
+    setCharacterFileName(dispatch, newLink);
+  };
+
 
   const VisuallyHiddenInput = styled("input")({
     clip: "rect(0 0 0 0)",
@@ -58,7 +62,8 @@ function PhotoSelector() {
             fileBytes: Array.from(bytes),
             token: "123",
           });
-          updateCharacterLink(response);
+          updateCharacterLink(response.link);
+          updateCharacterFileName(response.file_name)
           handleRouteToCanvas();
           console.log("Response from upload_file:", response);
         } catch (e) {

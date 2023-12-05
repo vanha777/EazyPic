@@ -62,6 +62,12 @@ function reducer(state, action) {
     case "CHARACTER_LINK": {
       return { ...state, characterLink: action.value };
     }
+    case "CHARACTER_NO_BACKGROUND_LINK": {
+      return { ...state, characterNoBackGroundLink: action.value };
+    }
+    case "CHARACTER_FILE_NAME": {
+      return { ...state, characterFileName: action.value };
+    }
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
@@ -81,6 +87,8 @@ function ArgonControllerProvider({ children }) {
     layout: "dashboard",
     darkMode: false,
     characterLink: null,
+    characterFileName: null,
+    characterNoBackGroundLink: null,
   };
 
   const [controller, dispatch] = useReducer(reducer, initialState);
@@ -117,6 +125,8 @@ const setDirection = (dispatch, value) => dispatch({ type: "DIRECTION", value })
 const setLayout = (dispatch, value) => dispatch({ type: "LAYOUT", value });
 const setDarkMode = (dispatch, value) => dispatch({ type: "DARK_MODE", value });
 const setCharacterLink = (dispatch, value) => dispatch({ type: "CHARACTER_LINK", value });
+const setCharacterFileName = (dispatch, value) => dispatch({ type: "CHARACTER_FILE_NAME", value });
+const setCharacterNoBackGroundLink = (dispatch, value) => dispatch({ type: "CHARACTER_NO_BACKGROUND_LINK", value });
 
 export {
   ArgonControllerProvider,
@@ -130,5 +140,7 @@ export {
   setDirection,
   setLayout,
   setDarkMode,
-  setCharacterLink
+  setCharacterLink,
+  setCharacterFileName,
+  setCharacterNoBackGroundLink
 };

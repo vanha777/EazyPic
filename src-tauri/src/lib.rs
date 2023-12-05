@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use models::{image::{ImageResponse, MediaRequest, MediaResponse}};
+use models::image::{ImageJobReply, ImageResponse, MediaRequest, MediaResponse};
 use tauri::App;
 #[cfg(mobile)]
 mod mobile;
@@ -15,7 +15,7 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-async fn background_generate() -> Result<String,String> {
+async fn background_generate() -> Result<String, String> {
     let client = reqwest::Client::new();
     let response = client
         .post("http://localhost:1010/image")
@@ -24,7 +24,10 @@ async fn background_generate() -> Result<String,String> {
         }))
         .send()
         .await.map_err(|e|e.to_string())?;
-    let image_response = response.json::<ImageResponse>().await.map_err(|e|e.to_string())?;
+    let image_response = response
+        .json::<ImageResponse>()
+        .await
+        .map_err(|e| e.to_string())?;
 
     let result = image_response
         .data
@@ -36,32 +39,55 @@ async fn background_generate() -> Result<String,String> {
 }
 
 #[tauri::command]
-async fn upload_file(file_bytes: Vec<u8>, token: &str) -> Result<String, String> {
+async fn upload_file(file_bytes: Vec<u8>, token: &str) -> Result<ImageJobReply, String> {
     let client = reqwest::Client::new();
     let presigned_link = client
         .get("http://localhost:1010/get-upload-link")
         .header("Authorization", format!("Bearer {}", token))
         .send()
-        .await.map_err(|e|e.to_string())?
+        .await
+        .map_err(|e| e.to_string())?
         .json::<MediaResponse>()
-        .await.map_err(|e|e.to_string())?;
+        .await
+        .map_err(|e| e.to_string())?;
 
     // upload fifle to aws
     match client.put(presigned_link.url).body(file_bytes).send().await {
         Ok(_) => Ok(client
             .post("http://localhost:1010/get-download-link")
             .json(&MediaRequest {
-                data: None, 
+                data: None,
                 id: presigned_link.item,
             })
             .header("Authorization", format!("Bearer {}", token))
             .send()
-            .await.map_err(|e|e.to_string())?
-            .json::<String>()
-            .await.map_err(|e|e.to_string())?),
+            .await
+            .map_err(|e| e.to_string())?
+            .json::<ImageJobReply>()
+            .await
+            .map_err(|e| e.to_string())?),
 
-        Err(e) => Err(format!("AWS Error {:?}",e.to_string())),
+        Err(e) => Err(format!("AWS Error {:?}", e.to_string())),
     }
+}
+
+#[tauri::command]
+async fn get_character(file_name: &str) -> Result<ImageJobReply, String> {
+    let client = reqwest::Client::new();
+    let response = client
+        .post("http://localhost:1010/make-character")
+        .json(&serde_json::json!({
+            "id":file_name
+        }))
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    let res = response
+        .json::<ImageJobReply>()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(res)
 }
 
 #[derive(Default)]
