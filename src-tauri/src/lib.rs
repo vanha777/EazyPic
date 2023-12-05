@@ -76,9 +76,7 @@ async fn get_character(file_name: &str) -> Result<ImageJobReply, String> {
     let client = reqwest::Client::new();
     let response = client
         .post("http://localhost:1010/make-character")
-        .json(&serde_json::json!({
-            "id":file_name
-        }))
+        .json(&MediaRequest{ data: None, id: file_name.to_string() })
         .send()
         .await
         .map_err(|e| e.to_string())?;
