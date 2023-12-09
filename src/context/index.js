@@ -71,6 +71,12 @@ function reducer(state, action) {
     case "BACKGROUND_LINK": {
       return { ...state, backgroundLink: action.value };
     }
+    case "ACCESS_TOKEN": {
+      return { ...state, accessToken: action.value };
+    }
+    case "IS_LOGIN": {
+      return { ...state, isLogin: action.value };
+    }
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
@@ -93,6 +99,8 @@ function ArgonControllerProvider({ children }) {
     characterFileName: null,
     characterNoBackGroundLink: null,
     backgroundLink: null,
+    accessToken: null,
+    isLogin: false,
   };
 
   const [controller, dispatch] = useReducer(reducer, initialState);
@@ -132,6 +140,8 @@ const setCharacterLink = (dispatch, value) => dispatch({ type: "CHARACTER_LINK",
 const setCharacterFileName = (dispatch, value) => dispatch({ type: "CHARACTER_FILE_NAME", value });
 const setCharacterNoBackGroundLink = (dispatch, value) => dispatch({ type: "CHARACTER_NO_BACKGROUND_LINK", value });
 const setBackgroundLink = (dispatch, value) => dispatch({ type: "BACKGROUND_LINK", value });
+const setAccessToken = (dispatch, value) => dispatch({ type: "ACCESS_TOKEN", value });
+const setIsLogin = (dispatch, value) => dispatch({ type: "IS_LOGIN", value });
 
 export {
   ArgonControllerProvider,
@@ -148,5 +158,7 @@ export {
   setCharacterLink,
   setCharacterFileName,
   setCharacterNoBackGroundLink,
-  setBackgroundLink
+  setBackgroundLink,
+  setAccessToken,
+  setIsLogin
 };

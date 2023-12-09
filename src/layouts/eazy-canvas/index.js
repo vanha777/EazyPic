@@ -53,7 +53,6 @@ function Tables() {
     setBackgroundLink(dispatch, newLink);
   };
 
-
   const handleInputChange = (event) => {
     console.log('', event.target.value)
     setBackgroundDescription(event.target.value);

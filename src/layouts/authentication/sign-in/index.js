@@ -13,7 +13,8 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { useState } from "react";
+import React, { useContext,useState } from 'react';
+
 
 // react-router-dom components
 import { Link } from "react-router-dom";
@@ -27,6 +28,10 @@ import ArgonTypography from "components/ArgonTypography";
 import ArgonInput from "components/ArgonInput";
 import ArgonButton from "components/ArgonButton";
 
+//Context
+import { AuthContext } from 'context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
 // Authentication layout components
 import IllustrationLayout from "layouts/authentication/components/IllustrationLayout";
 
@@ -35,9 +40,46 @@ const bgImage =
   "https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg";
 
 function Illustration() {
+  const { login,logout } = useContext(AuthContext);
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
   const [rememberMe, setRememberMe] = useState(false);
 
+  const navigate = useNavigate();
+
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
+
+  const handleEmailChange = (event) => {
+    console.log('', event.target.value)
+    setEmail(event.target.value);
+  };
+
+  const handlePasswordChange = (event) => {
+    console.log('', event.target.value)
+    setPassword(event.target.value);
+  };
+
+  async function handleLogin() {
+    try {
+      let credentials = {
+        email: email,
+        password: password
+      };
+      // Assuming login is an async function that returns a promise
+      const loginResponse = await login(credentials);
+      // Handle the response from the login operation
+      // For example, redirecting the user, updating the UI, etc.
+      console.log("Login successful", loginResponse);
+
+      navigate('/dashboard'); // Navigate routes
+      // Additional logic after successful login
+      // ...
+    } catch (error) {
+      // Handle any errors that occurred during login
+      console.error("Login failed", error);
+      // Possible UI update to inform the user about the login failure
+    }
+  }
 
   return (
     <IllustrationLayout
@@ -52,10 +94,16 @@ function Illustration() {
     >
       <ArgonBox component="form" role="form">
         <ArgonBox mb={2}>
-          <ArgonInput type="email" placeholder="Email" size="large" />
+          <ArgonInput
+           value={email}
+           onChange={handleEmailChange}
+           type="email" placeholder="Email" size="large" />
         </ArgonBox>
         <ArgonBox mb={2}>
-          <ArgonInput type="password" placeholder="Password" size="large" />
+          <ArgonInput 
+             value={password}
+             onChange={handlePasswordChange}
+          type="password" placeholder="Password" size="large" />
         </ArgonBox>
         <ArgonBox display="flex" alignItems="center">
           <Switch checked={rememberMe} onChange={handleSetRememberMe} />
@@ -69,7 +117,7 @@ function Illustration() {
           </ArgonTypography>
         </ArgonBox>
         <ArgonBox mt={4} mb={1}>
-          <ArgonButton color="info" size="large" fullWidth>
+          <ArgonButton color="info" size="large" fullWidth onClick={handleLogin}>
             Sign In
           </ArgonButton>
         </ArgonBox>
