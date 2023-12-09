@@ -244,7 +244,7 @@ function Tables() {
                   <ArgonInput
                     fullWidth
                     multiline
-                    // rows={4} // Adjust the number of rows as needed
+                    // rows={1} // Adjust the number of rows as needed
                     value={backgroundDescription}
                     onChange={handleInputChange}
                     placeholder="Describe your background..."

@@ -80,9 +80,9 @@ function reducer(state, action) {
 // Argon Dashboard 2 MUI context provider
 function ArgonControllerProvider({ children }) {
   const initialState = {
-    miniSidenav: false,
-    darkSidenav: false,
-    sidenavColor: null,
+    miniSidenav: true,
+    darkSidenav: true,
+    sidenavColor: "info",
     transparentNavbar: true,
     fixedNavbar: false,
     openConfigurator: false,
