@@ -20,6 +20,7 @@ import Card from "@mui/material/Card";
 // Argon Dashboard 2 MUI components
 import ArgonBox from "components/ArgonBox";
 import ArgonTypography from "components/ArgonTypography";
+import AnimatedRoute from "components/AnimatedRoute";
 
 // Argon Dashboard 2 MUI examples
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -32,13 +33,6 @@ import authorsTableData from "layouts/tables/data/authorsTableData";
 import projectsTableData from "layouts/tables/data/projectsTableData";
 import { Box, Button, Container, Stack, Typography } from "@mui/material";
 
-import exampleImage1 from "./example/example1.png";
-import exampleImage2 from "./example/example2.png";
-import exampleImage3 from "./example/example3.png";
-import exampleImage4 from "./example/example4.png";
-
-import DefaultBackGround from "./background.png";
-import DefaultComponent from "./defaultcomponent.png";
 import Tooltip from "@mui/material/Tooltip";
 import Icon from "@mui/material/Icon";
 import ArgonButton from "components/ArgonButton";
@@ -195,6 +189,7 @@ function Tables() {
   };
 
   return (
+    <AnimatedRoute>
     <DashboardLayout>
       <DashboardNavbar />
 
@@ -350,6 +345,7 @@ function Tables() {
 
       <Footer />
     </DashboardLayout>
+    </AnimatedRoute>
   );
 }
 

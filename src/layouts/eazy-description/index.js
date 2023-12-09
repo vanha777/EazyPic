@@ -14,6 +14,7 @@ import ArgonTypography from "components/ArgonTypography";
 import ArgonInput from "components/ArgonInput";
 import { primitives } from "@tauri-apps/api";
 import { useArgonController, setBackgroundLink } from 'context';
+import AnimatedRoute from "components/AnimatedRoute";
 
 function PhotoSelector() {
 
@@ -57,6 +58,7 @@ const handleRouteToCanvas = async () => {
   }
 
   return (
+    <AnimatedRoute>
     <ArgonBox sx={{ padding: "16px", textAlign: "center" }}>
 
       <ArgonBox
@@ -113,6 +115,7 @@ const handleRouteToCanvas = async () => {
 
       </ArgonBox>
     </ArgonBox>
+    </AnimatedRoute>
   );
 }
 

@@ -25,6 +25,7 @@ import Icon from "@mui/material/Icon";
 
 // Argon Dashboard 2 MUI components
 import ArgonBox from "components/ArgonBox";
+import AnimatedRoute from "components/AnimatedRoute";
 
 // Argon Dashboard 2 MUI example components
 import Sidenav from "examples/Sidenav";

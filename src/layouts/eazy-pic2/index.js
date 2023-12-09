@@ -6,13 +6,13 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Icon from "@mui/material/Icon";
 import Stack from "@mui/material/Stack";
 import Card from "@mui/material/Card";
-import exampleImage from "./example.png";
 import { Grid, Paper, Button, Typography } from "@mui/material";
 import ArgonBox from "components/ArgonBox"; // Ensure you have this component available
 import ArgonButton from "components/ArgonButton";
 import ArgonTypography from "components/ArgonTypography";
 import { useArgonController, setCharacterFileName, setCharacterNoBackGroundLink } from 'context';
 import { primitives } from "@tauri-apps/api";
+import AnimatedRoute from "components/AnimatedRoute";
 
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -83,6 +83,7 @@ function PhotoSelector() {
 
 
   return (
+    <AnimatedRoute>
     <ArgonBox sx={{ padding: "16px", textAlign: "center" }}>
       <ArgonTypography variant="subtitle1" gutterBottom
       >
@@ -148,6 +149,7 @@ function PhotoSelector() {
 
       </ArgonBox>
     </ArgonBox>
+    </AnimatedRoute>
   );
 }
 

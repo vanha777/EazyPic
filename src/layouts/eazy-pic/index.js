@@ -12,6 +12,7 @@ import { Grid, Paper, Button, Typography } from "@mui/material";
 import ArgonBox from "components/ArgonBox"; // Ensure you have this component available
 import ArgonButton from "components/ArgonButton";
 import ArgonTypography from "components/ArgonTypography";
+import AnimatedRoute from "components/AnimatedRoute";
 
 import { useArgonController, setCharacterLink, setCharacterFileName } from 'context';
 import { primitives } from "@tauri-apps/api";
@@ -81,6 +82,7 @@ function PhotoSelector() {
   }
 
   return (
+    <AnimatedRoute>
     <ArgonBox sx={{ padding: "16px", textAlign: "center" }}>
       <ArgonTypography variant="h4" gutterBottom>
         Start from a photo
@@ -136,6 +138,7 @@ function PhotoSelector() {
         </Stack>
       </ArgonBox>
     </ArgonBox>
+    </AnimatedRoute>
   );
 }
 
