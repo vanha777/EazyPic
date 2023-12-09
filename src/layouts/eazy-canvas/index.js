@@ -43,20 +43,50 @@ import Tooltip from "@mui/material/Tooltip";
 import Icon from "@mui/material/Icon";
 import ArgonButton from "components/ArgonButton";
 import Grid from "@mui/material/Grid";
+import { useArgonController, setBackgroundLink } from 'context';
+import ArgonInput from "components/ArgonInput";
 
 import { primitives } from "@tauri-apps/api";
 
 function Tables() {
-  const { columns, rows } = authorsTableData;
-  const { columns: prCols, rows: prRows } = projectsTableData;
+  const [backgroundDescription, setBackgroundDescription] = React.useState('');
+
+  const [controller, dispatch] = useArgonController();
+  const { backgroundLink } = controller;
+  const { characterNoBackGroundLink } = controller;
+
+  const updateBackgroundLink = (newLink) => {
+    setBackgroundLink(dispatch, newLink);
+  };
+
+
+  const handleInputChange = (event) => {
+    console.log('', event.target.value)
+    setBackgroundDescription(event.target.value);
+  };
+
+  const fetchData = async () => {
+    try {
+      const response = await primitives.invoke("background_generate", {
+        input: backgroundDescription
+      });
+      let image = `data:image/jpeg;base64,${response.link}`;
+      setBackGround(image);
+      updateBackgroundLink(image);
+      console.log("Response from background_generator:", response.status);
+    } catch (e) {
+      console.error("Error in background_generate:", e);
+    }
+  };
+
 
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [scale, setScale] = useState(1);
   const [startDragPosition, setStartDragPosition] = useState({ x: 0, y: 0 });
 
-  const [backGround, setBackGround] = useState(DefaultBackGround);
-  const [characters, setCharacters] = useState(DefaultComponent);
+  const [backGround, setBackGround] = useState(backgroundLink);
+  const [characters, setCharacters] = useState(characterNoBackGroundLink);
   const [loading, setLoading] = useState({
     inserts: false,
     theme: false,
@@ -65,7 +95,7 @@ function Tables() {
   });
 
   // An array of images
-  const exampleCharacters = [exampleImage1, exampleImage2, exampleImage3,exampleImage4];
+  const exampleCharacters = [characterNoBackGroundLink];
   //this is test only
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -98,22 +128,30 @@ function Tables() {
       });
   }
 
-  function handleBackgroundGenerator() {
-    console.log("generating background");
-    setLoading({ ...loading, theme: true });
-    primitives
-      .invoke("background_generate")
-      .then((response) => {
-        let image = `data:image/jpeg;base64,${response}`;
-        setBackGround(image);
-        setLoading({ ...loading, theme: false });
-        // Additional logic to handle the response
-      })
-      .catch((error) => {
-        setLoading({ ...loading, theme: false });
-        console.error("Error:", error);
-        // Additional logic to handle the error
+  async function handleBackgroundGenerator() {
+    // Store the current input value in a temporary variable
+    const currentInput = backgroundDescription;
+    // Reset the backgroundDescription immediately when sending starts
+    setBackgroundDescription('');
+    try {
+      console.log("Generating background");
+      setLoading({ ...loading, theme: true });
+
+      const response = await primitives.invoke("background_generate", {
+        input: currentInput
       });
+
+      let image = `data:image/jpeg;base64,${response.link}`;
+      setBackGround(image);
+      updateBackgroundLink(image);
+
+      console.log("Response from background_generator:", response.status);
+    } catch (e) {
+      console.error("Error in background_generate:", e);
+    } finally {
+      // Reset the loading state here if necessary
+      setLoading({ ...loading, theme: false });
+    }
   }
 
   const handleMouseDown = (e) => {
@@ -204,7 +242,50 @@ function Tables() {
         <ArgonBox mb={3}>
           <ArgonBox>
             <Grid container justifyContent="center" spacing={2}>
+
               {/* First Row */}
+              <Grid item xs={12} container spacing={2} justifyContent="space-between">
+                <Grid item xs={12}>
+                  <ArgonInput
+                    fullWidth
+                    multiline
+                    // rows={4} // Adjust the number of rows as needed
+                    value={backgroundDescription}
+                    onChange={handleInputChange}
+                    placeholder="Describe your background..."
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        // Prevent the default action to avoid submitting the form
+                        event.preventDefault();
+                        handleBackgroundGenerator();
+                      }
+                    }}
+                    startAdornment={
+                      <Icon fontSize="small" style={{ marginRight: "6px" }}>
+                        search
+                      </Icon>
+                    }
+                    endAdornment={
+                      <ArgonButton
+                      onClick={handleBackgroundGenerator}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          handleBackgroundGenerator();
+                        }
+                      }}
+                      loading={loading.theme}
+                      variant="gradient"
+                      style={{ marginRight: "-12px" }} // Adjust as needed to align the button
+                      tabIndex="0" // Ensure the button is focusable
+                    >
+                      <Icon>layers_sharp</Icon>
+                    </ArgonButton>
+                    
+                    }
+                  />
+                </Grid>
+              </Grid>
+              {/* Seconds Row */}
               <Grid item xs={12} container spacing={2} justifyContent="space-between">
                 <Grid item xs={4}>
                   <ArgonButton
@@ -236,12 +317,12 @@ function Tables() {
                 </Grid>
               </Grid>
 
-              {/* Second Row */}
+              {/* Third Row */}
               <Grid item xs={12} container spacing={2} justifyContent="space-between">
                 <Grid item xs={4}>
                   <ArgonButton
-                    onClick={handleBackgroundGenerator}
-                    loading={loading.theme}
+                    // onClick={handleBackgroundGenerator}
+                    // loading={loading.theme}
                     variant="gradient"
                     fullWidth
                   >

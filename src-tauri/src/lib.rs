@@ -15,25 +15,26 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-async fn background_generate() -> Result<String, String> {
+async fn background_generate(input: &str) -> Result<ImageJobReply, String> {
     let client = reqwest::Client::new();
     let response = client
         .post("http://localhost:1010/image")
         .json(&serde_json::json!({
-            "input":"Create a background image that encompasses elements of space and sky, featuring astronomical phenomena. This backdrop will later be used to insert a main robot character into the scene."
+            "input":input
         }))
         .send()
-        .await.map_err(|e|e.to_string())?;
+        .await
+        .map_err(|e| e.to_string())?;
     let image_response = response
         .json::<ImageResponse>()
         .await
         .map_err(|e| e.to_string())?;
 
-    let result = image_response
-        .data
-        .get(0)
-        .and_then(|x| x.b64_json.clone())
-        .unwrap_or_default();
+    let result = ImageJobReply {
+        status: Some("Successfull".to_string()),
+        file_name: None,
+        link: image_response.data.get(0).and_then(|x| x.b64_json.clone()),
+    };
 
     Ok(result)
 }
@@ -76,7 +77,10 @@ async fn get_character(file_name: &str) -> Result<ImageJobReply, String> {
     let client = reqwest::Client::new();
     let response = client
         .post("http://localhost:1010/make-character")
-        .json(&MediaRequest{ data: None, id: file_name.to_string() })
+        .json(&MediaRequest {
+            data: None,
+            id: file_name.to_string(),
+        })
         .send()
         .await
         .map_err(|e| e.to_string())?;
