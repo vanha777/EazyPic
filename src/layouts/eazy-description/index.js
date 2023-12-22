@@ -12,7 +12,8 @@ import ArgonBox from "components/ArgonBox"; // Ensure you have this component av
 import ArgonButton from "components/ArgonButton";
 import ArgonTypography from "components/ArgonTypography";
 import ArgonInput from "components/ArgonInput";
-import { primitives } from "@tauri-apps/api";
+// import { primitives } from "@tauri-apps/api";
+import { invoke } from '@tauri-apps/api/core'
 import { useArgonController, setBackgroundLink } from 'context';
 import AnimatedRoute from "components/AnimatedRoute";
 
@@ -40,7 +41,7 @@ function PhotoSelector() {
 
   const fetchData = async () => {
     try {
-      const response = await primitives.invoke("background_generate", {
+      const response = await invoke("background_generate", {
         input: backgroundDescription
       });
       let image = `data:image/jpeg;base64,${response.link}`;

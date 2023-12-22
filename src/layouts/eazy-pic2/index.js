@@ -11,7 +11,8 @@ import ArgonBox from "components/ArgonBox"; // Ensure you have this component av
 import ArgonButton from "components/ArgonButton";
 import ArgonTypography from "components/ArgonTypography";
 import { useArgonController, setCharacterFileName, setCharacterNoBackGroundLink } from 'context';
-import { primitives } from "@tauri-apps/api";
+// import { primitives } from "@tauri-apps/api";
+import { invoke } from '@tauri-apps/api/core'
 import AnimatedRoute from "components/AnimatedRoute";
 
 import { motion, AnimatePresence } from "framer-motion"
@@ -48,7 +49,7 @@ function PhotoSelector() {
 
   const fetchData = async () => {
     try {
-      const response = await primitives.invoke("get_character", {
+      const response = await invoke("get_character", {
         fileName: characterFileName
       });
       updatecharacterNoBackGroundLink(response.link);

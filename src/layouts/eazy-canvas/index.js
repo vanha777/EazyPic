@@ -14,7 +14,7 @@ Coded by www.creative-tim.com
 */
 
 // @mui material components
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Card from "@mui/material/Card";
 
 // Argon Dashboard 2 MUI components
@@ -40,7 +40,12 @@ import Grid from "@mui/material/Grid";
 import { useArgonController, setBackgroundLink } from 'context';
 import ArgonInput from "components/ArgonInput";
 
-import { primitives } from "@tauri-apps/api";
+// import { primitives } from "@tauri-apps/api";
+import { invoke } from '@tauri-apps/api/core'
+
+import example from "layouts/eazy-canvas/example.png";
+import { writeFile, BaseDirectory } from '@tauri-apps/plugin-fs'
+import { save, message } from '@tauri-apps/plugin-dialog'
 
 function Tables() {
   const [backgroundDescription, setBackgroundDescription] = React.useState('');
@@ -60,7 +65,7 @@ function Tables() {
 
   const fetchData = async () => {
     try {
-      const response = await primitives.invoke("background_generate", {
+      const response = await invoke("background_generate", {
         input: backgroundDescription
       });
       let image = `data:image/jpeg;base64,${response.link}`;
@@ -105,8 +110,7 @@ function Tables() {
   // testing function
   function handleLayersClick() {
     setLoading({ ...loading, inserts: true });
-    primitives
-      .invoke("greet", { name: "Van Jiro" })
+    invoke("greet", { name: "Van Jiro" })
       .then((response) => {
         console.log("Invoke fn from Rust BE:", response);
         setTimeout(() => {
@@ -130,7 +134,7 @@ function Tables() {
       console.log("Generating background");
       setLoading({ ...loading, theme: true });
 
-      const response = await primitives.invoke("background_generate", {
+      const response = await invoke("background_generate", {
         input: currentInput
       });
 
@@ -187,163 +191,235 @@ function Tables() {
     setIsDragging(false);
   };
 
+  const canvasRef = useRef(null);
+
+  const drawOnCanvas = async () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    const background = new Image();
+    const character = new Image();
+
+    let scaledWidth = null;
+    let scaledHeight = null;
+
+    const loadBackground = new Promise((resolve, reject) => {
+      background.onload = () => resolve();
+      background.onerror = reject;
+      background.src = backGround;
+    });
+
+    const loadCharacter = new Promise((resolve, reject) => {
+      character.onload = () => {
+        scaledWidth = character.naturalWidth * scale;
+        scaledHeight = character.naturalHeight * scale;
+        resolve()
+      };
+      character.onerror = reject;
+      character.crossOrigin = "anonymous";
+      character.src = characters;
+    });
+    console.log("this is position of character , ", position);
+
+    await Promise.all([loadBackground, loadCharacter]).then(() => {
+      ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(character, position.x, position.y, scaledWidth, scaledHeight);
+    }).catch(error => {
+      console.error('Error loading images:', error);
+    });
+  };
+
+  const downloadImage = async () => {
+    await drawOnCanvas();
+    const canvas = canvasRef.current;
+    const dataUrl = canvas.toDataURL('image/png');
+
+    fetch(dataUrl)
+      .then(res => res.blob())
+      .then(blob => {
+        const reader = new FileReader();
+
+        reader.onload = async (e) => {
+          const arrayBuffer = e.target.result;
+          const bytes = new Uint8Array(arrayBuffer);
+
+          try {
+            const path = await save({
+              filters: [{
+                name: 'Image',
+                extensions: ['png', 'jpeg']
+              }]
+            });
+            console.log(" this is path , ", path);
+            await writeFile(path, bytes, { dir: BaseDirectory.App }).then(await message('Successfull Download Images', 'Tauri'));
+          } catch (e) {
+            console.error("Error saving file:", e);
+            await message('File not found', { title: 'Tauri', type: 'error' });
+          }
+        };
+        reader.readAsArrayBuffer(blob);
+      });
+  };
+
   return (
     <AnimatedRoute>
-    <DashboardLayout>
-      <DashboardNavbar />
+      <DashboardLayout>
+        <DashboardNavbar />
+        <ArgonBox py={3}>
 
-      <ArgonBox py={3}>
-        {/* Container for the image */}
-        <ArgonBox
-          mb={3}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          style={{ width: "100%" }}
-        >
-          <Card
-            style={{
-              width: "500px",
-              height: "500px",
-              backgroundImage: `url(${backGround})`, // Set the background image
-              backgroundSize: "cover", // Ensure the background covers the Card
-              position: "relative", // Needed for proper positioning of the ArgonBox
-              overflow: "hidden", // To clip the overflow
-            }}
+          {/* Container for the image */}
+          <ArgonBox
+            mb={3}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            style={{ width: "100%" }}
           >
-            <ArgonBox
-              display="flex"
-              alignItems="center"
-              component="img"
-              src={characters}
-              alt="Editable Image"
+            <Card
               style={{
-                transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-                cursor: isDragging ? "grabbing" : "grab",
+                width: "500px",
+                height: "500px",
+                backgroundImage: `url(${backGround})`, // Set the background image
+                backgroundSize: "cover", // Ensure the background covers the Card
+                position: "relative", // Needed for proper positioning of the ArgonBox
+                overflow: "hidden", // To clip the overflow
               }}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-              onWheel={handleWheel}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            />
-          </Card>
-        </ArgonBox>
+            >
+              <img
+                display="flex"
+                // alignItems="center"
+                // component="img"
+                src={characters}
+                alt="Editable Image"
+                style={{
+                  transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                  cursor: isDragging ? "grabbing" : "grab",
+                }}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+                onWheel={handleWheel}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              />
+            </Card>
+          </ArgonBox>
+          {/* Container for the image end. */}
+          <canvas ref={canvasRef} width="500" height="500" style={{ display: 'none' }} />
 
-        <ArgonBox mb={3}>
-          <ArgonBox>
-            <Grid container justifyContent="center" spacing={2}>
+          <ArgonBox mb={3}>
+            <ArgonBox>
+              <Grid container justifyContent="center" spacing={2}>
 
-              {/* First Row */}
-              <Grid item xs={12} container spacing={2} justifyContent="space-between">
-                <Grid item xs={12}>
-                  <ArgonInput
-                    fullWidth
-                    multiline
-                    // rows={1} // Adjust the number of rows as needed
-                    value={backgroundDescription}
-                    onChange={handleInputChange}
-                    placeholder="Describe your background..."
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter') {
-                        // Prevent the default action to avoid submitting the form
-                        event.preventDefault();
-                        handleBackgroundGenerator();
-                      }
-                    }}
-                    startAdornment={
-                      <Icon fontSize="small" style={{ marginRight: "6px" }}>
-                        search
-                      </Icon>
-                    }
-                    endAdornment={
-                      <ArgonButton
-                      onClick={handleBackgroundGenerator}
+                {/* First Row */}
+                <Grid item xs={12} container spacing={2} justifyContent="space-between">
+                  <Grid item xs={12}>
+                    <ArgonInput
+                      fullWidth
+                      multiline
+                      // rows={1} // Adjust the number of rows as needed
+                      value={backgroundDescription}
+                      onChange={handleInputChange}
+                      placeholder="Describe your background..."
                       onKeyDown={(event) => {
                         if (event.key === 'Enter') {
+                          // Prevent the default action to avoid submitting the form
+                          event.preventDefault();
                           handleBackgroundGenerator();
                         }
                       }}
-                      loading={loading.theme}
+                      startAdornment={
+                        <Icon fontSize="small" style={{ marginRight: "6px" }}>
+                          search
+                        </Icon>
+                      }
+                      endAdornment={
+                        <ArgonButton
+                          onClick={handleBackgroundGenerator}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter') {
+                              handleBackgroundGenerator();
+                            }
+                          }}
+                          loading={loading.theme}
+                          variant="gradient"
+                          style={{ marginRight: "-12px" }} // Adjust as needed to align the button
+                          tabIndex="0" // Ensure the button is focusable
+                        >
+                          <Icon>layers_sharp</Icon>
+                        </ArgonButton>
+
+                      }
+                    />
+                  </Grid>
+                </Grid>
+                {/* Seconds Row */}
+                <Grid item xs={12} container spacing={2} justifyContent="space-between">
+                  <Grid item xs={4}>
+                    <ArgonButton
+                      onClick={handleCharactersGenerator}
+                      loading={loading.characters}
                       variant="gradient"
-                      style={{ marginRight: "-12px" }} // Adjust as needed to align the button
-                      tabIndex="0" // Ensure the button is focusable
+                      fullWidth
                     >
                       <Icon>layers_sharp</Icon>
+                      &nbsp;characters
                     </ArgonButton>
-                    
-                    }
-                  />
+                  </Grid>
+                  <Grid item xs={4}>
+                    <ArgonButton
+                      onClick={handleLayersClick}
+                      loading={loading.inserts}
+                      variant="gradient"
+                      fullWidth
+                    >
+                      <Icon>add_circle_outline_sharp</Icon>
+                      &nbsp;Inserts
+                    </ArgonButton>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <ArgonButton variant="gradient" fullWidth>
+                      <Icon>font_download_sharp</Icon>
+                      &nbsp;Text
+                    </ArgonButton>
+                  </Grid>
                 </Grid>
-              </Grid>
-              {/* Seconds Row */}
-              <Grid item xs={12} container spacing={2} justifyContent="space-between">
-                <Grid item xs={4}>
-                  <ArgonButton
-                    onClick={handleCharactersGenerator}
-                    loading={loading.characters}
-                    variant="gradient"
-                    fullWidth
-                  >
-                    <Icon>layers_sharp</Icon>
-                    &nbsp;characters
-                  </ArgonButton>
-                </Grid>
-                <Grid item xs={4}>
-                  <ArgonButton
-                    onClick={handleLayersClick}
-                    loading={loading.inserts}
-                    variant="gradient"
-                    fullWidth
-                  >
-                    <Icon>add_circle_outline_sharp</Icon>
-                    &nbsp;Inserts
-                  </ArgonButton>
-                </Grid>
-                <Grid item xs={4}>
-                  <ArgonButton variant="gradient" fullWidth>
-                    <Icon>font_download_sharp</Icon>
-                    &nbsp;Text
-                  </ArgonButton>
-                </Grid>
-              </Grid>
 
-              {/* Third Row */}
-              <Grid item xs={12} container spacing={2} justifyContent="space-between">
-                <Grid item xs={4}>
-                  <ArgonButton
-                    // onClick={handleBackgroundGenerator}
-                    // loading={loading.theme}
-                    variant="gradient"
-                    fullWidth
-                  >
-                    <Icon>wallpaper_sharp</Icon>
-                    &nbsp;Theme
-                  </ArgonButton>
-                </Grid>
-                <Grid item xs={4}>
-                  <ArgonButton variant="gradient" fullWidth>
-                    <Icon>co_present_sharp</Icon>
-                    &nbsp;Shadows
-                  </ArgonButton>
-                </Grid>
-                <Grid item xs={4}>
-                  <ArgonButton variant="gradient" fullWidth>
-                    <Icon>height_sharp</Icon>
-                    &nbsp;Resize
-                  </ArgonButton>
+                {/* Third Row */}
+                <Grid item xs={12} container spacing={2} justifyContent="space-between">
+                  <Grid item xs={4}>
+                    <ArgonButton
+                      // onClick={handleBackgroundGenerator}
+                      // loading={loading.theme}
+                      variant="gradient"
+                      fullWidth
+                    >
+                      <Icon>wallpaper_sharp</Icon>
+                      &nbsp;Theme
+                    </ArgonButton>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <ArgonButton onClick={downloadImage} variant="gradient" fullWidth>
+                      <Icon>co_present_sharp</Icon>
+                      &nbsp;Download
+                    </ArgonButton>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <ArgonButton variant="gradient" fullWidth>
+                      <Icon>height_sharp</Icon>
+                      &nbsp;Resize
+                    </ArgonButton>
+                  </Grid>
                 </Grid>
               </Grid>
-            </Grid>
+            </ArgonBox>
           </ArgonBox>
         </ArgonBox>
-      </ArgonBox>
 
-      <Footer />
-    </DashboardLayout>
+        <Footer />
+      </DashboardLayout>
     </AnimatedRoute>
   );
 }

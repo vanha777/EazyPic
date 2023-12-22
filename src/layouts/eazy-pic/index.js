@@ -15,7 +15,8 @@ import ArgonTypography from "components/ArgonTypography";
 import AnimatedRoute from "components/AnimatedRoute";
 
 import { useArgonController, setCharacterLink, setCharacterFileName } from 'context';
-import { primitives } from "@tauri-apps/api";
+// import { primitives } from "@tauri-apps/api";
+import { invoke } from '@tauri-apps/api/core'
 
 function PhotoSelector() {
   const [controller, dispatch] = useArgonController();
@@ -59,7 +60,7 @@ function PhotoSelector() {
         const arrayBuffer = e.target.result;
         const bytes = new Uint8Array(arrayBuffer);
         try {
-          const response = await primitives.invoke("upload_file", {
+          const response = await invoke("upload_file", {
             fileBytes: Array.from(bytes),
             token: "123",
           });

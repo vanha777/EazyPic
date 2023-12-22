@@ -1,63 +1,64 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
-    "beforeBuildCommand": "npm build",
+    "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm start",
     "devPath": "http://localhost:3000",
-    "distDir": "../build"
+    "distDir": "../build",
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "EazyPic",
     "version": "0.1.0"
   },
   "tauri": {
-    "bundle": {
-      "active": true,
-      "category": "DeveloperTool",
-      "copyright": "",
-      "deb": {
-        "depends": []
+      "bundle": {
+        "active": true,
+        "category": "DeveloperTool",
+        "copyright": "vanha101096@gmail.com",
+        "deb": {
+          "depends": []
+        },
+        "externalBin": [],
+        "iOS": {
+          "developmentTeam": "van ha (Personal Team)"
+        },
+        "icon": [
+          "icons/32x32.png",
+          "icons/128x128.png",
+          "icons/128x128@2x.png",
+          "icons/icon.icns",
+          "icons/icon.ico"
+        ],
+        "identifier": "EazyPic.app",
+        "longDescription": "",
+        "macOS": {
+          "entitlements": null,
+          "exceptionDomain": "",
+          "frameworks": [],
+          "providerShortName": null,
+          "signingIdentity": null
+        },
+        "resources": [],
+        "shortDescription": "",
+        "targets": "all",
+        "windows": {
+          "certificateThumbprint": null,
+          "digestAlgorithm": "sha256",
+          "timestampUrl": ""
+        }
       },
-      "externalBin": [],
-      "iOS": {
-        "developmentTeam": "demo"
+      "security": {
+        "csp": null
       },
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "identifier": "com.tauri.dev",
-      "longDescription": "",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
-      "resources": [],
-      "shortDescription": "",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
-    },
-    "security": {
-      "csp": null
-    },
-    "windows": [
-      {
-        "fullscreen": false,
-        "height": 600,
-        "resizable": true,
-        "title": "EazyPic",
-        "width": 800
-      }
-    ]
+      "windows": [
+        {
+          "fullscreen": false,
+          "height": 600,
+          "resizable": true,
+          "title": "EazyPic",
+          "width": 800
+        }
+      ]
+    }
   }
-}

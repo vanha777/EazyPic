@@ -8,6 +8,29 @@ mod mobile;
 pub use mobile::*;
 pub type SetupHook = Box<dyn FnOnce(&mut App) -> Result<(), Box<dyn std::error::Error>> + Send>;
 pub mod models;
+use base64::decode;
+use std::fs::File;
+use std::io::Write;
+use tauri::{command, Window};
+
+use dotenv::dotenv;
+use std::env;
+
+// #[tauri::command]
+// fn save_image(window: Window, base64_data: String) -> Result<(), String> {
+//     let data = decode(&base64_data).expect("Failed to decode base64 data");
+
+//     // Prompt the user to select a save location
+//     let path = window.dialog().save_file(None)?;
+
+//     if let Some(path) = path {
+//         let mut file = File::create(path)?;
+//         file.write_all(&data)?;
+//         Ok(())
+//     } else {
+//         Err(std::io::Error::new(std::io::ErrorKind::Other, "No file selected"))
+//     }
+// }
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -16,9 +39,11 @@ fn greet(name: &str) -> String {
 
 #[tauri::command]
 async fn background_generate(input: &str) -> Result<ImageJobReply, String> {
+    let madcatz_server =
+        env::var("MADCATZ_SERVER").unwrap_or_else(|_| "http://170.64.172.240:1010/".to_string());
     let client = reqwest::Client::new();
     let response = client
-        .post("http://localhost:1010/image")
+        .post(format!("{}image", madcatz_server))
         .json(&serde_json::json!({
             "input":input
         }))
@@ -41,9 +66,11 @@ async fn background_generate(input: &str) -> Result<ImageJobReply, String> {
 
 #[tauri::command]
 async fn upload_file(file_bytes: Vec<u8>, token: &str) -> Result<ImageJobReply, String> {
+    let madcatz_server =
+        env::var("MADCATZ_SERVER").unwrap_or_else(|_| "http://170.64.172.240:1010/".to_string());
     let client = reqwest::Client::new();
     let presigned_link = client
-        .get("http://localhost:1010/get-upload-link")
+        .get(format!("{}get-upload-link", madcatz_server))
         .header("Authorization", format!("Bearer {}", token))
         .send()
         .await
@@ -55,7 +82,7 @@ async fn upload_file(file_bytes: Vec<u8>, token: &str) -> Result<ImageJobReply, 
     // upload fifle to aws
     match client.put(presigned_link.url).body(file_bytes).send().await {
         Ok(_) => Ok(client
-            .post("http://localhost:1010/get-download-link")
+            .post(format!("{}get-download-link", madcatz_server))
             .json(&MediaRequest {
                 data: None,
                 id: presigned_link.item,
@@ -74,9 +101,11 @@ async fn upload_file(file_bytes: Vec<u8>, token: &str) -> Result<ImageJobReply, 
 
 #[tauri::command]
 async fn get_character(file_name: &str) -> Result<ImageJobReply, String> {
+    let madcatz_server =
+        env::var("MADCATZ_SERVER").unwrap_or_else(|_| "http://170.64.172.240:1010/".to_string());
     let client = reqwest::Client::new();
     let response = client
-        .post("http://localhost:1010/make-character")
+        .post(format!("{}make-character", madcatz_server))
         .json(&MediaRequest {
             data: None,
             id: file_name.to_string(),
@@ -111,6 +140,8 @@ impl AppBuilder {
     pub fn run(self) {
         let setup = self.setup;
         tauri::Builder::default()
+            .plugin(tauri_plugin_dialog::init())
+            .plugin(tauri_plugin_fs::init())
             .setup(move |app| {
                 if let Some(setup) = setup {
                     (setup)(app)?;
