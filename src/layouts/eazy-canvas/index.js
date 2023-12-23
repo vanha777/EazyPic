@@ -196,6 +196,9 @@ function Tables() {
   const drawOnCanvas = async () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+    const canvasRect = canvas.getBoundingClientRect();
+    const adjustedX = position.x - canvasRect.left;
+    const adjustedY = position.y - canvasRect.top;
 
     const background = new Image();
     const character = new Image();
@@ -211,19 +214,20 @@ function Tables() {
 
     const loadCharacter = new Promise((resolve, reject) => {
       character.onload = () => {
-        scaledWidth = character.naturalWidth * scale;
-        scaledHeight = character.naturalHeight * scale;
+        scaledWidth = 500 * scale;
+        scaledHeight = 500 * scale;
         resolve()
       };
       character.onerror = reject;
       character.crossOrigin = "anonymous";
       character.src = characters;
+      console.log("this is position of character , ", position);
+      console.log(" this is natural scale ", scale);
     });
-    console.log("this is position of character , ", position);
 
     await Promise.all([loadBackground, loadCharacter]).then(() => {
       ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-      ctx.drawImage(character, position.x, position.y, scaledWidth, scaledHeight);
+      ctx.drawImage(character, adjustedX, adjustedY, scaledWidth, scaledHeight);
     }).catch(error => {
       console.error('Error loading images:', error);
     });
@@ -250,8 +254,10 @@ function Tables() {
                 extensions: ['png', 'jpeg']
               }]
             });
-            console.log(" this is path , ", path);
-            await writeFile(path, bytes, { dir: BaseDirectory.App }).then(await message('Successfull Download Images', 'Tauri'));
+            if (path) {
+              console.log(" this is path , ", path);
+              await writeFile(path, bytes, { dir: BaseDirectory.App }).then(await message('Successfull Download Images', 'Tauri'));
+            }
           } catch (e) {
             console.error("Error saving file:", e);
             await message('File not found', { title: 'Tauri', type: 'error' });
@@ -259,6 +265,18 @@ function Tables() {
         };
         reader.readAsArrayBuffer(blob);
       });
+  };
+
+
+  // State to store the displayed image size
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+
+  const handleImageLoad = (event) => {
+    const imageElement = event.target;
+    setImageSize({
+      width: imageElement.offsetWidth,
+      height: imageElement.offsetHeight
+    });
   };
 
   return (
@@ -289,6 +307,7 @@ function Tables() {
                 display="flex"
                 // alignItems="center"
                 // component="img"
+                onLoad={handleImageLoad}
                 src={characters}
                 alt="Editable Image"
                 style={{
@@ -365,7 +384,8 @@ function Tables() {
                       fullWidth
                     >
                       <Icon>layers_sharp</Icon>
-                      &nbsp;characters
+                      {/* &nbsp;characters */}
+                      {test}
                     </ArgonButton>
                   </Grid>
                   <Grid item xs={4}>
